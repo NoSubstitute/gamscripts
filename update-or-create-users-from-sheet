@@ -1,0 +1,17 @@
+# Select domain to use gam on the correct organisation first.
+# gam select domainkeyword save
+# Provide user, ID of spreadsheet and NAME of sheet, and name of org for logfiles; whether to force a passwordchange is pulled from sheet.
+# Make sure the headers of the sheet match the ~headers below.
+# You need at least these headers.
+# primaryEmail, FirstName, LastName, Password, OU, SecondaryEmail, ChangePassword, Update, Groups
+
+# This line will create users if they don't exist, or update password if user exists and password is provided in Sheet, and the column Update has a Y for the row.
+/home/kim/gamadv-xtd3/gam csv gsheet $1 name $2 $3 matchfield Update Y gam update user ~primaryEmail ignorenullpassword firstname ~FirstName lastname ~LastName notfoundpassword ~Password ou ~OU createifnotfound notify ~SecondaryEmail changepassword ~ChangePassword lograndompassword ./$4-user_passwords-$(date +'%Y%m%d-%H%M').log
+
+# Make a choice which of the group lines you wish to use. add or sync
+
+# This line will *add* user to groups provided in the column Groups.
+#/home/kim/gamadv-xtd3/gam csv gsheet $1 name $2 $3 matchfield Update Y gam update groups ~Groups add member ~primaryEmail | tee -a ~/$4-add.new.users.accounts.to.groups.-$(date +'%Y%m%d-%H%M').log
+
+# This line will *sync* user to groups provided in the column Groups, meaning it will remove user from groups not provided.
+/home/kim/gamadv-xtd3/gam csv gsheet $1 name $2 $3 matchfield Update Y gam user ~primaryEmail sync groups ~Groups | tee -a ~/$4-sync.users.accounts.to.groups.-$(date +'%Y%m%d-%H%M').log
