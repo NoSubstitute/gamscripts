@@ -1,0 +1,16 @@
+## Upload an image.
+gam create chromepolicyimage chrome.users.Wallpaper C:\Temp\YourImage.jpg
+
+## Save the address to the image. It looks something like this.
+https://storage.googleapis.com/chromeos-mgmt/YourdomainCode/ChromeOsWallpaper/UniqueValueForFile
+
+## Create a CSV and adjust the image reference and OU paths.
+nano ChromePolicies.csv
+
+## Here's a template for the CSV.
+name,orgUnitPath,parentOrgUnitPath,direct,additionalTargetKeys,fields,fields.0.name,fields.0.value,additionalTargetKeys.0.name,additionalTargetKeys.0.value
+chrome.devices.SignInWallpaperImage,/Path/To/your/OU,/Path/To/your/OU,True,0,1,deviceWallpaperImage,https://storage.googleapis.com/chromeos-mgmt/YourdomainCode/ChromeOsWallpaper/UniqueValueForFile,,
+chrome.users.Wallpaper,/Path/To/your/OU,/Path/To/your/OU,True,0,1,wallpaperImage,,https://storage.googleapis.com/chromeos-mgmt/YourdomainCode/ChromeOsWallpaper/UniqueValueForFileOrOtherFile,,
+
+## Then push the new policies to the OU.
+gam csv ./ChromePolicies.csv gam update chromepolicy "~name" "~fields.0.name" "~fields.0.value" ou "/Path/To/your/OU"
