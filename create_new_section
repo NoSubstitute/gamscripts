@@ -10,7 +10,6 @@
 GAM=$HOME/gamadv-xtd3/gam
 mkdir -p $HOME/.gam/$2
 wait
-#echo [$1]$'\n'domain = $3$'\n'config_dir = $2$'\n'customer_id = my_customer$'\n'>> .gam/gam.cfg
 echo $'\n'[$1]$'\n'domain = $3$'\n'config_dir = $2$'\n'>> .gam/gam.cfg
 wait
 $GAM select $1 save
@@ -19,16 +18,6 @@ $GAM create project admin $4
 wait
 $GAM oauth create admin $4
 wait
-#word="Customer ID:"
-#cutFields=3
-#$GAM info domain |
-#while read -r line; do
-#    if [[ "$line" == *$word* ]]; then
-#        clean=$(echo ${line} | cut --delimiter=" " --fields=$cutFields)
-#        echo customer_id = ${clean}$'\n'>> .gam/gam.cfg
-#           break
-#    fi
-#done
 echo -e "customer_id = $("${GAM}" info domain | awk '/Customer ID:/ { print $NF; exit }')\n" >> .gam/gam.cfg
 wait
 $GAM user $5 check serviceaccount
