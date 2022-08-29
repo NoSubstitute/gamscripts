@@ -7,6 +7,12 @@
 # $3 = newdomain.com
 # $4 = AdminEmail@newdomain.com
 # $5 = SomeUser@newdomain.com
+# $6 = ProjectID
+# $7 = AppName
+# $8 = ProjectName
+# My recommendation is that you use the same reference for $6, $7 and $8 to make it easy to recognise.
+# When creating the Oauth Consent Screen and selecting Desktop App, you should use the same name for the app.
+
 GAM=$HOME/gamadv-xtd3/gam
 mkdir -p $HOME/.gam/$2
 wait
@@ -15,6 +21,7 @@ wait
 $GAM select $1 save
 wait
 $GAM create project admin $4
+gam create project admin $4 project $6 appname $7 projectname $8
 wait
 $GAM oauth create admin $4
 wait
