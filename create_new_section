@@ -20,7 +20,6 @@ echo $'\n'[$1]$'\n'domain = $3$'\n'config_dir = $2$'\n'>> .gam/gam.cfg
 wait
 $GAM select $1 save
 wait
-$GAM create project admin $4
 $GAM create project admin $4 project $6 appname $7 projectname $8
 wait
 $GAM oauth create admin $4
