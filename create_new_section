@@ -21,7 +21,7 @@ wait
 $GAM select $1 save
 wait
 $GAM create project admin $4
-gam create project admin $4 project $6 appname $7 projectname $8
+$GAM create project admin $4 project $6 appname $7 projectname $8
 wait
 $GAM oauth create admin $4
 wait
