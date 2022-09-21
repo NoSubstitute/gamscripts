@@ -1,6 +1,6 @@
 #!/bin/bash
 # Supply a name for the section, the config dir, the domain, admin email and a test user like this.
-# create_new_section newdomain Newdomain newdomain.com AdminEmail SomeUser
+# create_new_section newdomain Newdomain newdomain.com AdminEmail SomeUser AppName ProjectName
 # That will create a number of variables for each word.
 # $1 = newdomain
 # $2 = NewDomain
