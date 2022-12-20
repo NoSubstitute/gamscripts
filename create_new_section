@@ -1,6 +1,6 @@
 #!/bin/bash
 # Supply a name for the section, the config dir, the domain, admin email and a test user like this.
-# create_new_section newdomain Newdomain newdomain.com AdminEmail SomeUser AppName ProjectName
+# create_new_section newdomain Newdomain newdomain.com AdminEmail SomeUser ProjectID AppName ProjectName
 # That will create a number of variables for each word.
 # $1 = newdomain
 # $2 = NewDomain
@@ -13,6 +13,30 @@
 # My recommendation is that you use the same reference for $6, $7 and $8 to make it easy to recognise.
 # When creating the Oauth Consent Screen and selecting Desktop App, you should use the same name for the app.
 
+if [ -z "$1" ]
+
+then
+echo "
+You forgot to add the necessary variables
+
+Supply a name for the section, the config dir, the domain, admin email and a test user like this.
+ create_new_section newdomain Newdomain newdomain.com AdminEmail SomeUser ProjectID AppName ProjectName
+ That will create a number of variables for each word.
+ $ 1 = newdomain
+ $ 2 = NewDomain
+ $ 3 = newdomain.com
+ $ 4 = AdminEmail@newdomain.com
+ $ 5 = SomeUser@newdomain.com
+ $ 6 = ProjectID
+ $ 7 = AppName
+ $ 8 = ProjectName
+ My recommendation is that you use the same reference for $ 6, $ 7 and $ 8 to make it easy to recognise.
+ Do note that $ 6 = ProjectID must be in lower case.
+ When creating the Oauth Consent Screen and selecting Desktop App, you should use the same name for the app.
+"
+
+else
+
 GAM=$HOME/gamadv-xtd3/gam
 mkdir -p $HOME/.gam/$2
 wait
@@ -24,7 +48,8 @@ $GAM create project admin $4 project $6 appname $7 projectname $8
 wait
 $GAM oauth create admin $4
 wait
-echo -e "customer_id = $("${GAM}" info domain | awk '/Customer ID:/ { print $NF; exit }')\n" >> .gam/gam.cfg
+#echo -e "customer_id = $("${GAM}" info domain | awk '/Customer ID:/ { print $NF; exit }')\n" >> .gam/gam.cfg
+echo -e "customer_id = $("${GAM}" info domain | awk '/Customer ID:/ { print $NF; exit }')" >> .gam/gam.cfg
 wait
 $GAM user $5 check serviceaccount
 wait
@@ -38,3 +63,5 @@ echo 'Copy and run this command to verify the DwD setting.'
 echo gam select $1 user $5 check serviceaccount
 echo
 echo 'If all passes you are now ready to use GAMADV-XTD3.'
+
+fi
