@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# Adjust these settings to match your config.
+# Path to GAMADV-XTD3 gam binary.
+GAM="$HOME/gamadv-xtd3/gam"
+# Which section to use for the command.
+SECTION="YourSectionHere"
+# Which user to create the Sheets file.
+USERNAME="YourAdminAccountHere"
+# ID of folder to hold the Sheets file. If you always delete the file when you're done managing, you can leave it as root.
+PARENT="root"
+
+# Create a new Sheets file to use for this session when managing Domain Shared Contacts.
+fileId=$(${GAM} select ${SECTION} user ${USERNAME} create drivefile drivefilename "Manage Domain Shared Contacts" mimetype gsheet returnidonly parentid ${PARENT})
+
+# Print current contacts to the newly created Sheet.
+${GAM} select ${SECTION} config csv_output_header_filter "Domain,ContactID,Name,Emails.1.address,Emails.1.rank,Emails.1.type,Family Name,Given Name,Organizations.1.name,Organizations.1.department,Organizations.1.rank,Organizations.1.title,Organizations.1.type" redirect csv ./ManageDSCs.csv todrive tdfileid ${fileId} tdtitle "Manage Domain Shared Contacts" tdtimestamp true tdsheettitle "Contacts" tdsheettimestamp false print contacts fields email,familyname,givenname,name,organization
+
+# Add Action column in Sheet, and add rows with Delete, Update and Add actions.
+echo "**********"
+echo "Copy the link to the created Sheets file above and open it in your browser."
+echo "Add Action column in Sheet, and add rows with Delete, Update and Add actions."
+echo "**********"
+echo "Then press any key when you are ready to run Delete, Update & Add actions from the Sheet."
+read -s -n 1
+
+echo "**********"
+echo "Are you sure you are ready to run the Delete, Update and Add actions?"
+echo "If you didn't create an Action column and add Add, Delete or Update rows nothing will actually change."
+echo "Check the Contact*Log.txt files for results."
+echo "**********"
+echo "Press 'y' to run Delete, Update & Add from the Sheet, or 'n' to exit."
+ 
+# Wait for the user to press a key
+read -s -n 1 key
+ 
+# Check which key was pressed
+case $key in
+    y|Y)
+        echo "You pressed 'y'. Continuing..."
+        # Use Sheet as input for the three action commands.
+
+        # Run the three Actions: Delete, Add, Update and push result to each action txt file
+        # Delete
+        ${GAM} select ${SECTION} redirect stdout ./${SECTION}ContactDeletesLog.txt redirect stderr stdout loop gsheet ${USERNAME} ${fileId} Contacts matchfield Action Delete gam delete contact "~ContactID"
+        echo "Deletes complete."
+
+        # Update
+        ${GAM} select ${SECTION} redirect stdout ./${SECTION}ContactUpdatesLog.txt redirect stderr stdout loop gsheet ${USERNAME} ${fileId} Contacts matchfield Action Update gam update contact "~ContactID" email work "~Emails.1.address" primary givenName "~Given Name" familyname "~Family Name" name "~Name" organization work "~Organizations.1.name" department "~Organizations.1.department" title "~Organizations.1.title" primary
+        echo "Updates complete."
+
+        # Add
+        ${GAM} select ${SECTION} redirect stdout ./${SECTION}ContactAddsLog.txt redirect stderr stdout loop gsheet ${USERNAME} ${fileId} Contacts matchfield Action Add gam create contact email work "~Emails.1.address" primary givenName "~Given Name" familyname "~Family Name" name "~Name" organization work "~Organizations.1.name" department "~Organizations.1.department" title "~Organizations.1.title" primary
+        echo "Adds complete."
+
+        echo "All actions complete."
+        ;;
+    n|N)
+        echo "You pressed 'n'. Exiting..."
+        exit 1
+        ;;
+    *)
+        echo "Invalid input. Please press 'y' or 'n'."
+        ;;
+esac
+
+echo "**********"
+echo "Do you wish to delete the temporary Sheets file?"
+echo "Press 'y' to delete the Sheets file, or 'n' to exit."
+# Wait for the user to press a key
+read -s -n 1 key2
+
+case $key2 in
+    y|Y)
+        echo "You pressed 'y'. Continuing..."
+        # Delete the temporary Sheets file.
+        ${GAM} select ${SECTION} user ${USERNAME} trash drivefile ${fileId}
+        echo "Deleted the temporary Sheets file."
+        ;;
+    n|N)
+        echo "You pressed 'n'. Exiting..."
+        exit 1
+        ;;
+    *)
+        echo "Invalid input. Please press 'y' or 'n'."
+        ;;
+esac
