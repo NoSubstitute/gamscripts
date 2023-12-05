@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Adjust these settings to match your config.
+# Path to GAMADV-XTD3 gam binary.
+GAM="$HOME/gamadv-xtd3/gam"
+# Which section to use for the command.
+SECTION="YourSectionHere"
+# Create a Sheets file to use for this process and add its fileID here. It will be used to hold the data of all future runs.
+fileId="YourOrphanedClassroomsSheetFileIDhere"
+
+# Print all current Classrooms to a local csv file for faster multithreaded processing.
+${GAM} select ${SECTION} redirect csv ./CourseIDs.csv print courses fields id
+
+# Print only those Classrooms with an unknown owned to the provided Sheets file and date the file with the most recent run.
+# This is going to take a long time and generate a lot of error messages.
+# Ignore them and it will eventually complete.
+${GAM} select ${SECTION} config num_threads 25 redirect csv - multiprocess todrive tdfileid ${fileId} tdtitle "Orphaned Classooms" tdtimestamp true tdsheettitle "" tdaddsheet tdsheettimeformat %Y%m%d csv ./CourseIDs.csv gam print courses course "~id" fields id,name,owneremail,coursestate,alternatelink,teachers,updatetime owneremailmatchpattern "Unknown User"
+
+# Remove the temporary local courses csv.
+rm ./CourseIDs.csv
