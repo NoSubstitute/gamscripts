@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Adjust these settings to match your config.
+
+# Path to GAMADV-XTD3 gam binary.
+GAM="$HOME/gamadv-xtd3/gam"
+
+# Which section to use for the command.
+SECTION="YourSectionHere"
+
+# The user name of the user with the Contacts
+USER="UserNameHere"
+
+# Create a Sheets file to use for this process and add its fileID here. It will be used to hold the data of all future runs.
+fileId="YourSheetsIDhere"
+
+# Adjust the timeformat if you want something else. However, the provided setting is the best.
+TIMEFORMAT="%Y%m%d%H%M"
+
+# Print all the USER Contacts to a new dated tab in the provided Sheets file and date the file with the most recent run.
+${GAM} select ${SECTION} redirect csv - multiprocess todrive tdfileid ${fileId} tdtitle "Mail Merge" tdtimestamp true tdsheettitle "" tdaddsheet tdsheettimeformat ${TIMEFORMAT} user ${USER} print contacts allfields
