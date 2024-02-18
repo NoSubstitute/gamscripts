@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# Adjust these settings to match your config.
+# Path to GAMADV-XTD3 gam binary.
+GAM="$HOME/gamadv-xtd3/gam"
+
+# Which section to use for the command.
+SECTION="YourSectionHere"
+
+# The user name of the user with access to the Sheets file with the CSV data.
+USER="UserNameHere"
+
+# Adjust to fit your ePPN attribute, which you need to create in admin console first.
+# https://admin.google.com/ac/customschema (ADD CUSTOM ATTRIBUTE)
+# Category = Skolfederation
+# Name = eduPersonPrincipalName
+# Info type = Text
+# Visibility = Visible to user and admin
+# No of values = Single value
+# That creates a schema with the following structure, which is used as the EPPNATTRIBUTE in this script.
+# Category.Name
+EPPNATTRIBUTE="Skolfederation.eduPersonPrincipalName"
+
+# Create a Sheets file to use for this process and add its fileID here. It will be used to hold the data of all users to add ePPN to.
+# Name the Sheet (tab) to Users and make sure there are columns EMAIL and EPPN with data in them, or adjust the vaules below.
+CSVfileId="YourSheetsIDhere"
+CSVSHEETNAME="Users"
+CSVEMAIL="EMAIL"
+CSVEPPNVALUE="EPPN"
+
+# Log actions to a *local* dated file. Change path if you want to put it elsewhere.
+LOGfileName="./setting_eppn.log"
+LOGDATE=$(date +'%Y%m%d%H%M')
+LOGFILE=${LOGfileName}-${LOGDATE}
+echo "action,result" > ${LOGFILE}
+
+# Read all your users from the provided Sheets file, set the ePPN, log the action to a dated file.
+# Sadly, pushing the logfile to a dated sheet in the same Sheets file seems to not work, so instead I push the log to a local dated file.
+# I have asked Ross if it is impossible to log to Sheet.
+# csv - multiprocess todrive tdfileid ${LOGfileId} tdtitle "Add ePPN" tdtimestamp true tdsheettitle "" tdaddsheet tdsheettimeformat %Y%m%d%H%M
+${GAM} select ${SECTION} config show_multiprocess_info false redirect stdout ${LOGFILE} multiprocess append csv gsheet ${USER} ${CSVfileId} ${CSVSHEETNAME} gam update user "~${CSVEMAIL}" ${EPPNATTRIBUTE} "~${CSVEPPNVALUE}"
+
+# Push the logged actions as a new dated sheet in the same Sheet where you pulled the user from, wihtout changing the file name.
+${GAM} select ${SECTION} user ${USER} update drivefile ${CSVfileId} localfile ${LOGFILE} addsheet ${LOGDATE} retainname
+
+# Afterwards you will be asked if you want the local logfile removed after pushing the data to Drive.
+echo "**********"
+echo "Do you wish to delete the temporary log file?"
+echo "Press 'y' to delete the log file, or 'n' to exit."
+# Wait for the user to press a key
+read -s -n 1 key
+
+case $key in
+    y|Y)
+        echo "You pressed 'y'. Continuing..."
+        # Delete the temporary log file.
+        rm ${LOGFILE}
+        echo "Deleted the temporary log file."
+        exit 0
+        ;;
+    n|N)
+        echo "You pressed 'n'. Exiting..."
+        exit 1
+        ;;
+    *)
+        echo "Invalid input. Please press 'y' or 'n'."
+        ;;
+esac
