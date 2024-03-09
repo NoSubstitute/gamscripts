@@ -28,6 +28,9 @@ CSVSHEETNAME="Users"
 CSVEMAIL="EMAIL"
 CSVEPPNVALUE="EPPN"
 
+# HERE'S A TEMPLATE YOU CAN COPY!
+# https://docs.google.com/spreadsheets/d/1zKLShKNxLChvCdSN1Y6OMIpSBrxgA-nwONsHLTGIECE/copy
+
 # Log actions to a *local* dated file. Change path if you want to put it elsewhere.
 LOGfileName="./setting_eppn.log"
 LOGDATE=$(date +'%Y%m%d%H%M')
