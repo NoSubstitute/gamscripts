@@ -62,7 +62,7 @@ case $key2 in
         ${GAM} select ${SECTION} config show_multiprocess_info false redirect stdout ${LOGFILE} multiprocess append csv gsheet ${USER} ${CSVfileId} ${CSVSHEETNAME} gam update user "~${CSVEMAIL}" ${EPPNATTRIBUTE} "~${CSVEPPNVALUE}"
 
         # Push the logged actions from the local file as a new dated sheet in the same Sheet where you pulled the users from, without changing the file name.
-        ${GAM} select ${SECTION} user ${USER} update drivefile ${CSVfileId} localfile ${LOGFILE} addsheet ${LOGDATE} retainname
+        ${GAM} select ${SECTION} user ${USER} update drivefile ${CSVfileId} localfile ${LOGFILE} addsheet "LOG-${LOGDATE}" retainname
 
         ;;
     n|N)
