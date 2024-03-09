@@ -34,14 +34,46 @@ LOGDATE=$(date +'%Y%m%d%H%M')
 LOGFILE=${LOGfileName}-${LOGDATE}
 echo "action,result" > ${LOGFILE}
 
-# Read all your users from the provided Sheets file, set the ePPN, log the action to a dated file.
-# Sadly, pushing the logfile to a dated sheet in the same Sheets file seems to not work, so instead I push the log to a local dated file.
-# I have asked Ross if it is impossible to log to Sheet.
-# csv - multiprocess todrive tdfileid ${LOGfileId} tdtitle "Add ePPN" tdtimestamp true tdsheettitle "" tdaddsheet tdsheettimeformat %Y%m%d%H%M
-${GAM} select ${SECTION} config show_multiprocess_info false redirect stdout ${LOGFILE} multiprocess append csv gsheet ${USER} ${CSVfileId} ${CSVSHEETNAME} gam update user "~${CSVEMAIL}" ${EPPNATTRIBUTE} "~${CSVEPPNVALUE}"
+# Print all your users to the provided Sheets file, to a new dated sheet.
+${GAM} select ${SECTION} redirect csv - multiprocess todrive tdupdatesheet tdfileid ${CSVfileId} tdupdatesheet tdsheettitle "Users" tdaddsheet tdsheettimeformat %Y%m%d%H%M print users fields id,fullname,ou,lastlogintime
 
-# Push the logged actions as a new dated sheet in the same Sheet where you pulled the user from, wihtout changing the file name.
-${GAM} select ${SECTION} user ${USER} update drivefile ${CSVfileId} localfile ${LOGFILE} addsheet ${LOGDATE} retainname
+# The script will pause here for you to adjust your Sheet.
+# Copy the users you want to manage ePPN for from the dated sheet to the CSVSHEETNAME sheet, column A.
+# Adjust the values in C3 and C5 to reflect your ePPN domain, and the name of the dated sheet where your users were just printed.
+# The formula in B1 will expand the list of IDs to include your ePPN domain, making column B contain your full ePPN.
+
+echo "**********"
+echo "Now, go adjust your Sheets file and come back here when you are ready to push the ePPN value to your users."
+echo "Copy the users you want to manage ePPN for from the dated sheet to the CSVSHEETNAME sheet, column A."
+echo "Adjust the values in C3 and C5 to reflect your ePPN domain, and the name of the dated sheet where your users were just printed."
+echo "The formula in B1 will expand the list of IDs to include your ePPN domain, making column B contain your full ePPN."
+echo "**********"
+echo "Are you done with your adjustments?"
+echo "Do you wish to continue?"
+echo "Press 'y' if you have adjusted the Sheets file, or 'n' to exit."
+# Wait for the user to press a key
+read -s -n 1 key2
+
+case $key2 in
+    y|Y)
+        echo "You pressed 'y'. Continuing..."
+        # Pushing the ePPN value from the Sheet to the users.
+
+        # Read your user list from the provided Sheets file, set the ePPN, and log the actions to a dated local file.
+        ${GAM} select ${SECTION} config show_multiprocess_info false redirect stdout ${LOGFILE} multiprocess append csv gsheet ${USER} ${CSVfileId} ${CSVSHEETNAME} gam update user "~${CSVEMAIL}" ${EPPNATTRIBUTE} "~${CSVEPPNVALUE}"
+
+        # Push the logged actions from the local file as a new dated sheet in the same Sheet where you pulled the users from, without changing the file name.
+        ${GAM} select ${SECTION} user ${USER} update drivefile ${CSVfileId} localfile ${LOGFILE} addsheet ${LOGDATE} retainname
+
+        ;;
+    n|N)
+        echo "You pressed 'n'. Exiting..."
+        exit 1
+        ;;
+    *)
+        echo "Invalid input. Please press 'y' or 'n'."
+        ;;
+esac
 
 # Afterwards you will be asked if you want the local logfile removed after pushing the data to Drive.
 echo "**********"
