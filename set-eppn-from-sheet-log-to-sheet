@@ -57,8 +57,7 @@ read -s -n 1 key2
 case $key2 in
     y|Y)
         echo "You pressed 'y'. Continuing..."
-        # Pushing the ePPN value from the Sheet to the users.
-
+        echo "Pushing the ePPN value from the Sheet to the users."
         # Read your user list from the provided Sheets file, set the ePPN, and log the actions to a dated local file.
         ${GAM} select ${SECTION} config show_multiprocess_info false redirect stdout ${LOGFILE} multiprocess append csv gsheet ${USER} ${CSVfileId} ${CSVSHEETNAME} gam update user "~${CSVEMAIL}" ${EPPNATTRIBUTE} "~${CSVEPPNVALUE}"
 
@@ -77,6 +76,7 @@ esac
 
 # Afterwards you will be asked if you want the local logfile removed after pushing the data to Drive.
 echo "**********"
+echo "Updating users is completed."
 echo "Do you wish to delete the temporary log file?"
 echo "Press 'y' to delete the log file, or 'n' to exit."
 # Wait for the user to press a key
