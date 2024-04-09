@@ -5,10 +5,10 @@
 GAM="$HOME/gamadv-xtd3/gam"
 
 # Which section to use for the command.
-SECTION="lomma"
+SECTION="YourSectionHere"
 
 # The user name of the user with access to the Sheets file with the CSV data.
-USER="kim.nilsson"
+USER="UserNameHere"
 
 # Adjust to fit your ePPN attribute, which you need to create in admin console first.
 # https://admin.google.com/ac/customschema (ADD CUSTOM ATTRIBUTE)
@@ -23,7 +23,7 @@ EPPNATTRIBUTE="Skolfederation.eduPersonPrincipalName"
 
 # Create a Sheets file to use for this process and add its fileID here. It will be used to hold the data of all users to add ePPN to.
 # Name the Sheet (tab) to Users and make sure there are columns EMAIL and EPPN with data in them, or adjust the vaules below.
-CSVfileId="1dAehzfy7_MQLcFimaM350z3zriQqHDTMPACRC57Dt2Y"
+CSVfileId="YourSheetsIDhere"
 CSVSHEETNAME="Users"
 CSVEMAIL="EMAIL"
 CSVEPPNVALUE="EPPN"
