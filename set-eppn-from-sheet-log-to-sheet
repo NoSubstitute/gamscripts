@@ -5,10 +5,10 @@
 GAM="$HOME/gamadv-xtd3/gam"
 
 # Which section to use for the command.
-SECTION="YourSectionHere"
+SECTION="lomma"
 
 # The user name of the user with access to the Sheets file with the CSV data.
-USER="UserNameHere"
+USER="kim.nilsson"
 
 # Adjust to fit your ePPN attribute, which you need to create in admin console first.
 # https://admin.google.com/ac/customschema (ADD CUSTOM ATTRIBUTE)
@@ -23,7 +23,7 @@ EPPNATTRIBUTE="Skolfederation.eduPersonPrincipalName"
 
 # Create a Sheets file to use for this process and add its fileID here. It will be used to hold the data of all users to add ePPN to.
 # Name the Sheet (tab) to Users and make sure there are columns EMAIL and EPPN with data in them, or adjust the vaules below.
-CSVfileId="YourSheetsIDhere"
+CSVfileId="1dAehzfy7_MQLcFimaM350z3zriQqHDTMPACRC57Dt2Y"
 CSVSHEETNAME="Users"
 CSVEMAIL="EMAIL"
 CSVEPPNVALUE="EPPN"
@@ -37,67 +37,129 @@ LOGDATE=$(date +'%Y%m%d%H%M')
 LOGFILE=${LOGfileName}-${LOGDATE}
 echo "action,result" > ${LOGFILE}
 
-# Print all your users to the provided Sheets file, to a new dated sheet.
-${GAM} select ${SECTION} redirect csv - multiprocess todrive tdupdatesheet tdfileid ${CSVfileId} tdupdatesheet tdsheettitle "Users" tdaddsheet tdsheettimeformat %Y%m%d%H%M print users fields id,fullname,ou,lastlogintime
-
-# The script will pause here for you to adjust your Sheet.
-# Copy the users you want to manage ePPN for from the dated sheet to the CSVSHEETNAME sheet, column A.
-# Adjust the values in C3 and C5 to reflect your ePPN domain, and the name of the dated sheet where your users were just printed.
-# The formula in B1 will expand the list of IDs to include your ePPN domain, making column B contain your full ePPN.
+# The script will pause here for you to answer whether you already have a Sheet with users. Commonly after you've already run this script once, and now added some more users to it and don't want to print all users again.
+# If you answer 'u' here, the script will assume you don't need to print your users to the Sheet, and instead immediately update the values from the existing Sheet.
 
 echo "**********"
-echo "Now, go adjust your Sheets file and come back here when you are ready to push the ePPN value to your users."
-echo "Copy the users you want to manage ePPN for from the dated sheet to the CSVSHEETNAME sheet, column A."
-echo "Adjust the values in C3 and C5 to reflect your ePPN domain, and the name of the dated sheet where your users were just printed."
-echo "The formula in B1 will expand the list of IDs to include your ePPN domain, making column B contain your full ePPN."
+echo "Do you need to print all your users to the Sheets file, or do you have an existing updated sheet?"
+echo "Press 'p' to print all users to your Sheets file."
+echo "Press 'x' to exit without any action."
+echo "Press 'u' to immediately update your user from the existing sheet ${CSVSHEETNAME}"
 echo "**********"
-echo "Are you done with your adjustments?"
-echo "Do you wish to continue?"
-echo "Press 'y' if you have adjusted the Sheets file, or 'n' to exit."
+echo "How do you wish to continue?"
+echo "Press 'p' to print users, 'x' to exit, or 'u' to update users."
 # Wait for the user to press a key
-read -s -n 1 key2
+read -s -n 1 key3
 
-case $key2 in
-    y|Y)
-        echo "You pressed 'y'. Continuing..."
-        echo "Pushing the ePPN value from the Sheet to the users."
+case $key3 in
+    p|P)
+        echo "You pressed 'p'. Continuing..."
+        echo "Printing all your users to the provided Sheets file, to a new dated sheet."
+        # Print all your users to the provided Sheets file, to a new dated sheet.
+        ${GAM} select ${SECTION} redirect csv - multiprocess todrive tdupdatesheet tdfileid ${CSVfileId} tdupdatesheet tdsheettitle "Users" tdaddsheet tdsheettimeformat %Y%m%d%H%M print users fields id,fullname,ou,lastlogintime
+
+        # The script will pause here for you to adjust your Sheet.
+        # Copy the users you want to manage ePPN for from the dated sheet to the CSVSHEETNAME sheet, column A.
+        # Adjust the values in C3 and C5 to reflect your ePPN domain, and the name of the dated sheet where your users were just printed.
+        # The formula in B1 will expand the list of IDs to include your ePPN domain, making column B contain your full ePPN.
+
+        echo "**********"
+        echo "Now, go adjust your Sheets file and come back here when you are ready to push the ePPN value to your users."
+        echo "Copy the users you want to manage ePPN for from the dated sheet to the CSVSHEETNAME sheet, column A."
+        echo "Adjust the values in C3 and C5 to reflect your ePPN domain, and the name of the dated sheet where your users were just printed."
+        echo "The formula in B1 will expand the list of IDs to include your ePPN domain, making column B contain your full ePPN."
+        echo "**********"
+        echo "Are you done with your adjustments?"
+        echo "Do you wish to continue?"
+        echo "Press 'y' if you have adjusted the Sheets file, or 'n' to exit without action."
+        # Wait for the user to press a key
+            read -s -n 1 key2
+
+            case $key2 in
+                y|Y)
+                    echo "You pressed 'y'. Continuing..."
+                    echo "Pushing the ePPN value from the sheet ${CSVSHEETNAME} to the users."
+                    # Read your user list from the provided Sheets file, set the ePPN, and log the actions to a dated local file.
+                    ${GAM} select ${SECTION} config show_multiprocess_info false redirect stdout ${LOGFILE} multiprocess append csv gsheet ${USER} ${CSVfileId} ${CSVSHEETNAME} gam update user "~${CSVEMAIL}" ${EPPNATTRIBUTE} "~${CSVEPPNVALUE}"
+
+                    # Push the logged actions from the local file as a new dated sheet in the same Sheet where you pulled the users from, without changing the file name.
+                    ${GAM} select ${SECTION} user ${USER} update drivefile ${CSVfileId} localfile ${LOGFILE} addsheet "LOG-${LOGDATE}" retainname
+                    # Afterwards you will be asked if you want the local logfile removed after pushing the data to Drive.
+                    echo "**********"
+                    echo "Updating users is completed."
+                    echo "Do you wish to delete the temporary log file?"
+                    echo "Press 'y' to delete the log file, or 'n' to exit and keep the log."
+                    # Wait for the user to press a key
+                    read -s -n 1 key
+
+                    case $key in
+                        y|Y)
+                            echo "You pressed 'y'. Continuing..."
+                            # Delete the temporary log file.
+                            rm ${LOGFILE}
+                            echo "Deleted the temporary log file."
+                            exit 0
+                            ;;
+                        n|N)
+                            echo "You pressed 'n'. Exiting..."
+                            exit 1
+                            ;;
+                        *)
+                            echo "Invalid input. Please press 'y' or 'n'."
+                            ;;
+                    esac
+                    ;;
+                n|N)
+                    echo "You pressed 'n'. Exiting..."
+                    exit 1
+                    ;;
+                *)
+                    echo "Invalid input. Please press 'y' or 'n'."
+                    ;;
+            esac
+        ;;
+
+    u|U)
+        echo "You pressed 'u'. Continuing..."
+        echo "Pushing the ePPN value from the sheet ${CSVSHEETNAME} to the users."
         # Read your user list from the provided Sheets file, set the ePPN, and log the actions to a dated local file.
         ${GAM} select ${SECTION} config show_multiprocess_info false redirect stdout ${LOGFILE} multiprocess append csv gsheet ${USER} ${CSVfileId} ${CSVSHEETNAME} gam update user "~${CSVEMAIL}" ${EPPNATTRIBUTE} "~${CSVEPPNVALUE}"
 
         # Push the logged actions from the local file as a new dated sheet in the same Sheet where you pulled the users from, without changing the file name.
         ${GAM} select ${SECTION} user ${USER} update drivefile ${CSVfileId} localfile ${LOGFILE} addsheet "LOG-${LOGDATE}" retainname
 
+        # Afterwards you will be asked if you want the local logfile removed after pushing the data to Drive.
+        echo "**********"
+        echo "Updating users is completed."
+        echo "Do you wish to delete the temporary log file?"
+        echo "Press 'y' to delete the log file, or 'n' to exit and keep the log."
+        # Wait for the user to press a key
+            read -s -n 1 key
+
+            case $key in
+                y|Y)
+                    echo "You pressed 'y'. Continuing..."
+                    # Delete the temporary log file.
+                    rm ${LOGFILE}
+                    echo "Deleted the temporary log file."
+                    exit 0
+                    ;;
+                n|N)
+                    echo "You pressed 'n'. Exiting..."
+                    exit 1
+                    ;;
+                *)
+                    echo "Invalid input. Please press 'y' or 'n'."
+                    ;;
+            esac
         ;;
-    n|N)
-        echo "You pressed 'n'. Exiting..."
+
+    x|X)
+        echo "You pressed 'x'. Exiting..."
         exit 1
         ;;
-    *)
-        echo "Invalid input. Please press 'y' or 'n'."
-        ;;
-esac
 
-# Afterwards you will be asked if you want the local logfile removed after pushing the data to Drive.
-echo "**********"
-echo "Updating users is completed."
-echo "Do you wish to delete the temporary log file?"
-echo "Press 'y' to delete the log file, or 'n' to exit."
-# Wait for the user to press a key
-read -s -n 1 key
-
-case $key in
-    y|Y)
-        echo "You pressed 'y'. Continuing..."
-        # Delete the temporary log file.
-        rm ${LOGFILE}
-        echo "Deleted the temporary log file."
-        exit 0
-        ;;
-    n|N)
-        echo "You pressed 'n'. Exiting..."
-        exit 1
-        ;;
     *)
-        echo "Invalid input. Please press 'y' or 'n'."
+        echo "Invalid input. Please press 'p', 'x' or 'u'."
         ;;
 esac
