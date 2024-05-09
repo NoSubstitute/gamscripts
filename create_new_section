@@ -13,7 +13,8 @@
 # $9 = ServiceAccountName
 # $10 = ServiceAccountDisplayName
 # $11 = ServiceAccountDescription
-# My recommendation is that you use the same reference for $6, $7 and $8 to make it easy to recognise.
+# My recommendation is that you use the same reference for 6 - 11 to make it easy to recognise.
+# Do note that 6 = ProjectID and 9 = ServiceAccountName must be in lower case, and start with a letter.
 # When creating the Oauth Consent Screen and selecting Desktop App, you should use the same name for the app.
 
 if [ -z "${1}" ]
@@ -23,7 +24,7 @@ echo "
 You forgot to add the necessary variables
 
 Supply a name for the section, the config dir, the domain, admin email and a test user like this.
- create_new_section newdomain Newdomain newdomain.com AdminEmail SomeUser ProjectID AppName ProjectName
+ create_new_section newdomain Newdomain newdomain.com AdminEmail SomeUser ProjectID AppName ProjectName ServiceAccountName ServiceAccountDisplayName ServiceAccountDescription
  That will create a number of variables for each word.
  1 = newdomain
  2 = NewDomain
