@@ -59,7 +59,7 @@ case $key3 in
         ${GAM} select ${SECTION} redirect csv - multiprocess todrive tdupdatesheet tdfileid ${CSVfileId} tdupdatesheet tdsheettitle "Users" tdaddsheet tdsheettimeformat %Y%m%d%H%M print users fields id,fullname,ou,lastlogintime
 
         # The script will pause here for you to adjust your Sheet.
-        # Copy the users you want to manage ePPN for from the dated sheet to the CSVSHEETNAME sheet, column A.
+        # Copy the users you want to manage ePPN for from the dated sheet to the ${CSVSHEETNAME} sheet, column A.
         # Adjust the values in C3 and C5 to reflect your ePPN domain, and the name of the dated sheet where your users were just printed.
         # The formula in B1 will expand the list of IDs to include your ePPN domain, making column B contain your full ePPN.
 
