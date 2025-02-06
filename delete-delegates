@@ -1,0 +1,7 @@
+#!/bin/bash
+# Do note that this simple script has no error checking.
+GAM=$HOME/bin/gam7/gam
+$GAM user $1 delete delegates $2 | tee -a Path.To.Dated.Log.File.$(date +'%Y%m%d-%H%M').$(date +'%Y%m%d-%H%M')
+
+# If you have sections, you need to specify which section you want to work with, like this.
+# $GAM select YourSectionHere user $1 delete delegates $2 | tee -a Path.To.Dated.Log.File.$(date +'%Y%m%d-%H%M')
