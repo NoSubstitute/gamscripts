@@ -1,4 +1,4 @@
 #!/bin/bash
 # Do note that this simple script has no error checking.
-GAM=$HOME/gamadv-xtd3/gam
+GAM=$HOME/bin/gam7/gam
 $GAM user $1 add delegates $2 | tee -a Add.delegates.to.${2}.$(date +'%Y%m%d-%H%M')
