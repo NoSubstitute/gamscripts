@@ -1,0 +1,22 @@
+#!/bin/bash
+# THERE ARE INSTRUCTIONS YOU MUST READ!
+# Comment the row below when you know what you are doing and have adjusted the necessary values.
+exit
+
+# You can do it in three gam commands.
+
+# 1. Print all users suspended on the relevant date.
+# 2. Print all those users ou, and filter those with relevant ou.
+# 3. Suspend the resulting list.
+
+# UN-Comment the row below when you know what you are doing and have adjusted the necessary values.
+#GAM=$HOME/bin/gam7/gam
+
+# 1. Print all users suspended on the relevant date.
+$GAM config csv_output_row_filter 'accounts.is_suspended:boolean:true,accounts.disabled_time:date=2024-07-01' redirect csv ./suspended_date.csv multiprocess report user user all parameters accounts:is_suspended,accounts:disabled_reason
+
+# 2. Print all those users ou, and filter those with relevant ou.
+$GAM config csv_output_row_filter 'orgunitpath:regex:/path/to/ou' redirect csv ./suspended_ou.csv multiprocess csv ./suspended_date.csv gam user ~~email~~ print ou
+
+# 3. Suspend the resulting list.
+$GAM csv ./suspended_ou.csv gam suspend user ~~primaryEmail~~
