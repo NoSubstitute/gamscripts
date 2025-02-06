@@ -1,0 +1,4 @@
+#!/bin/bash
+# Do note that this simple script has no error checking.
+GAM=$HOME/bin/gam7/gam
+$GAM user $1 show delegates
