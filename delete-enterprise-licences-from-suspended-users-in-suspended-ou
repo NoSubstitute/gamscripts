@@ -1,0 +1,12 @@
+#!/bin/bash
+# Delete licenses from suspended users in the OU /suspended in YourSection.
+# Adjust the necessary values to match your setup.
+
+GAM=$HOME/bin/gam7/gam
+LOGFILE=/path/to/where/you/want/your/log/licenses-logfile-$(date +'%Y-%m-%d_%H%M')
+SECTION=YouRSectionHere
+OU="/suspended"
+
+$GAM select $SECTION save
+$GAM config csv_output_row_drop_filter Licenses:regex:^$ csv_output_row_filter "orgUnitPath:regex:'${OU}'" print users query "isSuspended=true" licenses fields ou | $GAM redirect csv - multiprocess redirect stdout $LOGFILE redirect stderr stdout csv - gam user ~primaryEmail del license ~~Licenses~~
+$GAM select default save
