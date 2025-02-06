@@ -1,0 +1,4 @@
+#!/bin/bash
+# Do note that this simple script has no error checking.
+GAM=$HOME/bin/gam7/gam
+$GAM config csv_output_row_filter "lastLoginTime:time<-90d,Licenses:notregex:^$" print users query "isSuspended=False" lastlogintime ou licenses | gam csv - gam user ~primaryEmail delete license "~~Licenses~~"
