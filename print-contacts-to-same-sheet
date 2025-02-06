@@ -3,7 +3,7 @@
 # Adjust these settings to match your config.
 
 # Path to GAMADV-XTD3 gam binary.
-GAM="$HOME/gamadv-xtd3/gam"
+GAM=$HOME/bin/gam7/gam
 
 # Which section to use for the command.
 SECTION="YourSectionHere"
