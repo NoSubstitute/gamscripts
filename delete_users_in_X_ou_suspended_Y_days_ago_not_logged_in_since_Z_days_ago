@@ -1,0 +1,18 @@
+#!/bin/bash
+# THERE ARE INSTRUCTIONS YOU MUST READ!
+# Comment the row below when you know what you are doing and have adjusted the necessary values.
+exit
+
+# Adjust as necessary.
+GAM=$HOME/bin/gam7/gam
+
+OU="/path/to/the/relevant/OU"
+# The / in front of the OU path is necessary
+
+SUSPENDEDWHEN="number_of_days_ago"
+# Put a plain number, like 120
+
+LASTLOGINWHEN="number_of_days_since_last_login"
+# Put a plain number, like 180
+
+$GAM config csv_output_row_filter 'accounts.is_suspended:boolean:true,accounts.disabled_time:date<-${SUSPENDEDWHEN}d,accounts.last_login_time:date>=-${LASTLOGINWHEN}d' report user ou ${OU}  parameters accounts:is_suspended,accounts:disabled_reason,accounts:last_login_time | $GAM csv - gam delete user ~~email~~
