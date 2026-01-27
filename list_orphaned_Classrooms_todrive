@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Adjust these settings to match your config.
-# Path to GAMADV-XTD3 gam binary.
-GAM="$HOME/gamadv-xtd3/gam"
-# Which section to use for the command.
+# Path to GAM7 gam binary.
+GAM="$HOME/bin/gam7/gam"
+# Which section to use for the command. If you only have one section (most do), type DEFAULT here.
 SECTION="YourSectionHere"
 # Create a Sheets file to use for this process and add its fileID here. It will be used to hold the data of all future runs.
 fileId="YourOrphanedClassroomsSheetFileIDhere"
