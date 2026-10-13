@@ -1,5 +1,5 @@
 # gamscripts
-Scripts I use for GAMADV-XTD3
+Scripts I use for [GAM](https://github.com/GAM-team/GAM)
 
 Since these will be my own scripts there will perhaps be hardcoded paths or other references that you will have to edit before using yourself.
 
